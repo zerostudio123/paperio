@@ -1,0 +1,534 @@
+using Microsoft.SqlServer.Server;
+using System;
+using System.Collections.Generic;
+using System.Data.SqlTypes;
+using System.Diagnostics;
+using System.Dynamic;
+using System.Linq;
+using System.Net;
+using System.Net.Http.Headers;
+using System.Net.Mail;
+using System.Runtime.InteropServices;
+using System.Security.Authentication;
+using System.Text;
+using System.Threading.Tasks;
+using System.Xml.Schema;
+
+namespace ConsoleApp1
+{
+    internal class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.CursorVisible = false;
+            Console.WriteLine("Вы хотите играть с ботом или со вторым игроком?\n\n1-с другим игроком\n\n2-с ботом");
+            int userCoiseGame = Convert.ToInt32(Console.ReadLine());
+            Console.Clear();
+            Random rand = new Random();
+            int randomNumber;
+            int y = 10, x = 1;
+            int yPos = 10, xPos = 17;
+            float count = 306;
+            float countForArrow = 1;
+            float countForWasd = 1;
+            int countForWin = 756;
+
+            bool isWork = true;
+            char[,] map = {
+            {'#', '#', '#', '#','#', '#', '#', '#','#', '#', '#', '#','#', '#', '#', '#','#', '#', '#', '#',},
+            {'#', ' ', '#', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ','#', ' ', ' ', '#',},
+            {'#', ' ', '#', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ','#', ' ', ' ', '#',},
+            {'#', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ','#', ' ', ' ', '#',},
+            {'#', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', '#',},
+            {'#', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', '#',},
+            {'#', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', '#',},
+            {'#', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', '#',},
+            {'#', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', '#',},
+            {'#', '#', '#', '#','#', '#', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', '#',},
+            {'#', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', '#',},
+            {'#', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', '#',},
+            {'#', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', '#',},
+            {'#', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', '#',},
+            {'#', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', '#',},
+            {'#', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', '#',},
+            {'#', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', '#',},
+            {'#', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', ' ',' ', ' ', ' ', '#',},
+            {'#', '#', '#', '#','#', '#', '#', '#','#', '#', '#', '#','#', '#', '#', '#','#', '#', '#', '#',},
+            };
+
+            for (int i = 0; i < map.GetLength(0); i++)
+            {
+                for (int j = 0; j < map.GetLength(1); j++)
+                {
+                    if (map[i, j] == '1')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                    }
+                    else if (map[i, j] == '0')
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                    }
+                    else
+                    {
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                    Console.Write(map[i, j]);
+
+                }
+                Console.WriteLine();
+            }
+            while (isWork)
+            {
+                randomNumber = rand.Next(0, 4);
+                int oldY = y, oldX = x;
+                int oldYPos = yPos, oldXPos = xPos;
+                for (int i = 0; i < map.GetLength(0); i++)
+                {
+                    for (int j = 0; j < map.GetLength(1); j++)
+                    {
+                        if (map[i, j] == '1')
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                        }
+                        else if (map[i, j] == '0')
+                        {
+                            Console.ForegroundColor = ConsoleColor.Red;
+                        }
+                        else
+                        {
+                            Console.ForegroundColor = ConsoleColor.White;
+                        }
+                    }
+
+                }
+
+                Console.SetCursorPosition(20, 0);
+                Console.WriteLine(countForArrow + " очки на стрелочки");
+                Console.SetCursorPosition(20, 1);
+                Console.WriteLine(countForWasd + " очки на WASD");
+                Console.SetCursorPosition(yPos, xPos);
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.Write("№");
+                Console.SetCursorPosition(y, x);
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("@");
+                if (userCoiseGame == 2)
+                {
+                    ConsoleKeyInfo movmentforArrow = Console.ReadKey(true);
+                    switch (movmentforArrow.Key)
+                    {
+                        case ConsoleKey.UpArrow:
+                            if (map[x - 1, y] != '#')
+                            {
+                                if (map[x - 1, y] == ' ')
+                                {
+                                    countForArrow += count / 100.0f;
+                                }
+                                else if (map[x - 1, y] == '1')
+                                {
+                                    countForArrow += count / 100.0f;
+                                    countForWasd -= count / 100;
+                                }
+                                x--;
+                                map[x, y] = '0';
+                                Console.SetCursorPosition(oldY, oldX);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("0");
+                                Console.SetCursorPosition(y, x);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("@");
+                            }
+                            break;
+                        case ConsoleKey.DownArrow:
+                            if (map[x + 1, y] != '#')
+                            {
+                                if (map[x + 1, y] == ' ')
+                                {
+                                    countForArrow += count / 100.0f;
+                                }
+                                else if (map[x + 1, y] == '1')
+                                {
+                                    countForArrow += count / 100.0f;
+                                    countForWasd -= count / 100;
+                                }
+                                x++;
+                                map[x, y] = '0';
+                                Console.SetCursorPosition(oldY, oldX);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("0");
+                                Console.SetCursorPosition(y, x);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("@");
+                            }
+                            break;
+                        case ConsoleKey.LeftArrow:
+                            if (map[x, y - 1] != '#')
+                            {
+                                if (map[x, y - 1] == ' ')
+                                {
+                                    countForArrow += count / 100.0f;
+                                }
+                                else if (map[x, y - 1] == '1')
+                                {
+                                    countForArrow += count / 100.0f;
+                                    countForWasd -= count / 100;
+                                }
+                                y--;
+                                map[x, y] = '0';
+                                Console.SetCursorPosition(oldY, oldX);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("0");
+                                Console.SetCursorPosition(y, x);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("@");
+                            }
+                            break;
+
+                        case ConsoleKey.RightArrow:
+                            if (map[x, y + 1] != '#')
+                            {
+                                if (map[x, y + 1] == ' ')
+                                {
+                                    countForArrow += count / 100.0f;
+                                }
+                                else if (map[x, y + 1] == '1')
+                                {
+                                    countForArrow += count / 100.0f;
+                                    countForWasd -= count / 100;
+                                }
+                                y++;
+                                map[x, y] = '0';
+                                Console.SetCursorPosition(oldY, oldX);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("0");
+                                Console.SetCursorPosition(y, x);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("@");
+                            }
+                            break;
+                    }
+                    switch (randomNumber)
+                    {
+                        case 0:
+                            if (map[xPos - 1, yPos] != '#')
+                            {
+                                if (map[xPos - 1, yPos] == ' ')
+                                {
+                                    countForWasd += count / 100.0f;
+                                }
+                                else if (map[xPos - 1, yPos] == '0')
+                                {
+                                    countForWasd += count / 100.0f;
+                                    countForArrow -= count / 100;
+                                }
+                                xPos--;
+                                map[xPos, yPos] = '1';
+                                Console.SetCursorPosition(oldYPos, oldXPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("1");
+                                Console.SetCursorPosition(yPos, xPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("№");
+                            }
+                            break;
+                        case 1:
+                            if (map[xPos + 1, yPos] != '#')
+                            {
+                                if (map[xPos + 1, yPos] == ' ')
+                                {
+                                    countForWasd += count / 100.0f;
+                                }
+                                else if (map[xPos + 1, yPos] == '0')
+                                {
+                                    countForWasd += count / 100.0f;
+                                    countForArrow -= count / 100;
+                                }
+                                xPos++;
+                                map[xPos, yPos] = '1';
+                                Console.SetCursorPosition(oldYPos, oldXPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("1");
+                                Console.SetCursorPosition(yPos, xPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("№");
+                            }
+                            break;
+                        case 2:
+                            if (map[xPos, yPos - 1] != '#')
+                            {
+                                if (map[xPos, yPos - 1] == ' ')
+                                {
+                                    countForWasd += count / 100.0f;
+                                }
+                                else if (map[xPos, yPos - 1] == '0')
+                                {
+                                    countForWasd += count / 100.0f;
+                                    countForArrow -= count / 100;
+                                }
+                                yPos--;
+                                map[xPos, yPos] = '1';
+                                Console.SetCursorPosition(oldYPos, oldXPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("1");
+                                Console.SetCursorPosition(yPos, xPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("№");
+                            }
+                            break;
+                        case 3:
+
+                            if (map[xPos, yPos + 1] != '#')
+                            {
+                                if (map[xPos, yPos + 1] == ' ')
+                                {
+                                    countForWasd += count / 100.0f;
+                                }
+                                else if (map[xPos, yPos + 1] == '0')
+                                {
+                                    countForWasd += count / 100.0f;
+                                    countForArrow -= count / 100;
+                                }
+                                yPos++;
+                                map[xPos, yPos] = '1';
+                                Console.SetCursorPosition(oldYPos, oldXPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("1");
+                                Console.SetCursorPosition(yPos, xPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("№");
+
+                            }
+                            break;
+                    }
+                }
+                if (userCoiseGame == 1)
+                {
+                    ConsoleKeyInfo movmentforArrow = Console.ReadKey(true);
+
+                    switch (movmentforArrow.Key)
+                    {
+                        case ConsoleKey.UpArrow:
+                            if (map[x - 1, y] != '#')
+                            {
+                                if (map[x - 1, y] == ' ')
+                                {
+                                    countForArrow += count / 100.0f;
+                                }
+                                else if (map[x - 1, y] == '1')
+                                {
+                                    countForArrow += count / 100.0f;
+                                    countForWasd -= count / 100;
+                                }
+                                x--;
+                                map[x, y] = '0';
+                                Console.SetCursorPosition(oldY, oldX);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("0");
+                                Console.SetCursorPosition(y, x);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("@");
+                            }
+                            break;
+                        case ConsoleKey.W:
+                            if (map[xPos - 1, yPos] != '#')
+                            {
+                                if (map[xPos - 1, yPos] == ' ')
+                                {
+                                    countForWasd += count / 100.0f;
+                                }
+                                else if (map[xPos - 1, yPos] == '0')
+                                {
+                                    countForWasd += count / 100.0f;
+                                    countForArrow -= count / 100;
+                                }
+                                xPos--;
+                                map[xPos, yPos] = '1';
+                                Console.SetCursorPosition(oldYPos, oldXPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("1");
+                                Console.SetCursorPosition(yPos, xPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("№");
+                            }
+                            break;
+                        case ConsoleKey.DownArrow:
+                            if (map[x + 1, y] != '#')
+                            {
+                                if (map[x + 1, y] == ' ')
+                                {
+                                    countForArrow += count / 100.0f;
+                                }
+                                else if (map[x + 1, y] == '1')
+                                {
+                                    countForArrow += count / 100.0f;
+                                    countForWasd -= count / 100;
+                                }
+                                x++;
+                                map[x, y] = '0';
+                                Console.SetCursorPosition(oldY, oldX);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("0");
+                                Console.SetCursorPosition(y, x);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("@");
+                            }
+                            break;
+                        case ConsoleKey.LeftArrow:
+                            if (map[x, y - 1] != '#')
+                            {
+                                if (map[x, y - 1] == ' ')
+                                {
+                                    countForArrow += count / 100.0f;
+                                }
+                                else if (map[x, y - 1] == '1')
+                                {
+                                    countForArrow += count / 100.0f;
+                                    countForWasd -= count / 100;
+                                }
+                                y--;
+                                map[x, y] = '0';
+                                Console.SetCursorPosition(oldY, oldX);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("0");
+                                Console.SetCursorPosition(y, x);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("@");
+                            }
+                            break;
+                        case ConsoleKey.RightArrow:
+                            if (map[x, y + 1] != '#')
+                            {
+                                if (map[x, y + 1] == ' ')
+                                {
+                                    countForArrow += count / 100.0f;
+                                }
+                                else if (map[x, y + 1] == '1')
+                                {
+                                    countForArrow += count / 100.0f;
+                                    countForWasd -= count / 100;
+                                }
+                                y++;
+                                map[x, y] = '0';
+                                Console.SetCursorPosition(oldY, oldX);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("0");
+                                Console.SetCursorPosition(y, x);
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.Write("@");
+                            }
+                            break;
+                        case ConsoleKey.S:
+                            if (map[xPos + 1, yPos] != '#')
+                            {
+                                if (map[xPos + 1, yPos] == ' ')
+                                {
+                                    countForWasd += count / 100.0f;
+                                }
+                                else if (map[xPos + 1, yPos] == '0')
+                                {
+                                    countForWasd += count / 100.0f;
+                                    countForArrow -= count / 100;
+                                }
+                                xPos++;
+                                map[xPos, yPos] = '1';
+                                Console.SetCursorPosition(oldYPos, oldXPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("1");
+                                Console.SetCursorPosition(yPos, xPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("№");
+                            }
+                            break;
+                        case ConsoleKey.A:
+                            if (map[xPos, yPos - 1] != '#')
+                            {
+                                if (map[xPos, yPos - 1] == ' ')
+                                {
+                                    countForWasd += count / 100.0f;
+                                }
+                                else if (map[xPos, yPos - 1] == '0')
+                                {
+                                    countForWasd += count / 100.0f;
+                                    countForArrow -= count / 100;
+                                }
+                                yPos--;
+                                map[xPos, yPos] = '1';
+                                Console.SetCursorPosition(oldYPos, oldXPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("1");
+                                Console.SetCursorPosition(yPos, xPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("№");
+                            }
+                            break;
+                        case ConsoleKey.D:
+
+                            if (map[xPos, yPos + 1] != '#')
+                            {
+                                if (map[xPos, yPos + 1] == ' ')
+                                {
+                                    countForWasd += count / 100.0f;
+                                }
+                                else if (map[xPos, yPos + 1] == '0')
+                                {
+                                    countForWasd += count / 100.0f;
+                                    countForArrow -= count / 100;
+                                }
+                                yPos++;
+                                map[xPos, yPos] = '1';
+                                Console.SetCursorPosition(oldYPos, oldXPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("1");
+                                Console.SetCursorPosition(yPos, xPos);
+                                Console.ForegroundColor = ConsoleColor.Yellow;
+                                Console.Write("№");
+
+                            }
+                            break;
+                    }
+                }
+
+                if (countForArrow >= 756 || countForWasd >= 756)
+                {
+                    isWork = false;
+                }
+            }
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.White;
+            if (userCoiseGame == 1)
+            {
+                if (countForArrow >= countForWin)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Стрелочки победили");
+                }
+                else if (countForWasd >= countForWin)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("WASD победили");
+                }
+                Console.Beep(76, 10000);
+                Console.ReadKey();
+                while (true) { }
+            }
+            if(userCoiseGame == 2)
+            {
+                if (countForArrow >= countForWin)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("вы победили!");
+                }
+                else if (countForWasd >= countForWin)
+                {
+                    Console.ForegroundColor = ConsoleColor.Yellow;
+                    Console.WriteLine("бот победил");
+                }
+                Console.Beep(76, 10000);
+                Console.ReadKey();
+                while (true) { }
+            }
+
+        }
+    }
+}
+
